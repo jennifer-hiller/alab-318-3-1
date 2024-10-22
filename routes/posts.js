@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const posts = require("../data/posts.js");
 const users = require("../data/users.js");
+const comments = require("../data/comments.js");
 const error = require("../utilities/error.js");
 
 //////////////POSTS//////////////
@@ -97,6 +98,20 @@ router.delete("/:id", (req, res, next) => {
 
   if (post) res.json(post);
   else next();
+});
+
+router.get("/:id/comments", (req, res, next) => {
+  const post = posts.find((p) => p.id == req.params.id);
+  if (!post) return next(error(400, "Post not found"));
+  let filteredComments;
+  if (req.query.userId) {
+    filteredComments = comments.filter(
+      (c) => c.postId == req.params.id && c.userId == req.query.userId
+    );
+  } else {
+    filteredComments = comments.filter((c) => c.postId == req.params.id);
+  }
+  res.json(filteredComments);
 });
 
 module.exports = router;
