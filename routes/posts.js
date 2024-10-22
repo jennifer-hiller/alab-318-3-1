@@ -105,6 +105,8 @@ router.get("/:id/comments", (req, res, next) => {
   if (!post) return next(error(400, "Post not found"));
   let filteredComments;
   if (req.query.userId) {
+    const user = users.find((u) => u.id == req.query.userId);
+    if (!user) return next(error(400, "User not found"));
     filteredComments = comments.filter(
       (c) => c.postId == req.params.id && c.userId == req.query.userId
     );

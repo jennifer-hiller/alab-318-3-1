@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const users = require("../data/users.js");
 const posts = require("../data/posts.js");
+const comments = require("../data/comments.js");
 const error = require("../utilities/error.js");
 
 // BASE PATH FOR THIS ROUTER IS: /api/users
@@ -113,6 +114,22 @@ router.get("/:id/posts", (req, res, next) => {
     });
     res.json(filteredPosts);
   } else next();
+});
+
+router.get("/:id/comments", (req, res, next) => {
+  const user = users.find((u) => u.id == req.params.id);
+  if (!user) return next(error(400, "User not found"));
+  let filteredComments;
+  if (req.query.postId) {
+    const post = posts.find((p) => p.id == req.query.postId);
+    if (!post) return next(error(400, "Post not found"));
+    filteredComments = comments.filter(
+      (c) => c.userId == req.params.id && c.postId == req.query.postId
+    );
+  } else {
+    filteredComments = comments.filter((c) => c.userId == req.params.id);
+  }
+  res.json(filteredComments);
 });
 
 module.exports = router;
